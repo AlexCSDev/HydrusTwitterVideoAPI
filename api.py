@@ -10,7 +10,6 @@ load_dotenv()
 app = Flask(__name__)
 app.config['DOWNLOAD_FOLDER'] = 'downloads'
 
-
 def delete_old_files():
     folder_path = 'downloads'
     file_extension = '.mp4'
@@ -35,8 +34,7 @@ def download_video(url, videoRandomID):
     ydl_opts = {
         'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
         'merge_output_format': 'mp4',
-        'username': os.getenv("TWITTER_USERNAME"),
-        'password': os.getenv("TWITTER_PASSWORD"),
+        'cookiefile': 'cookies.txt',
         'outtmpl': os.path.join(app.config['DOWNLOAD_FOLDER'], videoRandomID+'.mp4')
     }
 
@@ -48,33 +46,23 @@ def download_video(url, videoRandomID):
 def index():
     return "running ✅"
 
-
-@app.route('/baixar', methods=['POST'])
-def baixar_video():
+@app.route('/get_tweet_video', methods=['GET'])
+def get_tweet_video():
     delete_old_files()
-    data = request.json
-    video_url = data.get('url')
+    video_url = request.args.get('url')
     videoRandomID = str(uuid.uuid4()).rsplit('-', 1)[-1]
 
     if video_url:
         if 'twitter.com' not in video_url:
-            return jsonify({'error': 'apenas videos do twitter.com'})
+            return jsonify({'error': 'twitter.com url is expected'})
         try:
             download_video(video_url, videoRandomID)
-            file_url = f"{request.host_url}download/{videoRandomID}.mp4"
-            return jsonify({'file': file_url})
+            return send_from_directory(app.config['DOWNLOAD_FOLDER'], f"{videoRandomID}.mp4")
         except:
-            return jsonify({'error': 'erro ao baixar'}), 400
+            return jsonify({'error': 'error while downloading video'}), 400
 
     else:
-        return jsonify({'error': 'URL inválida'}), 500
-
-
-@app.route('/download/<path:filename>', methods=['GET'])
-def download(filename):
-    delete_old_files()
-    return send_from_directory(app.config['DOWNLOAD_FOLDER'], filename)
-
+        return jsonify({'error': 'Invalid url'}), 500
 
 if __name__ == '__main__':
     if not os.path.exists(app.config['DOWNLOAD_FOLDER']):
