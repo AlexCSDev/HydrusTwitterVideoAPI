@@ -24,9 +24,9 @@ def delete_old_files():
                 creation_time = os.path.getctime(file_path)
                 if (current_time - creation_time) > time_threshold:
                     os.remove(file_path)
-                    print(f"Arquivo '{filename}' removido.")
+                    print(f"Removed '{filename}' due to reaching time threshold.")
             except Exception as e:
-                print(f"Erro ao excluir o arquivo '{filename}': {str(e)}")
+                print(f"Error while removing '{filename}': {str(e)}")
 
 
 def download_video(url, videoRandomID):
