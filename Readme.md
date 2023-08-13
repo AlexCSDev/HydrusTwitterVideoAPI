@@ -1,7 +1,7 @@
 # Video Proxy API for Hydrus Network
 Based on https://github.com/erickythierry/BaixarVideoTwitterAPI
 
-##Supported sites:
+## Supported sites:
 * Twitter
 * Pixiv (ugoira)
 
